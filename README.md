@@ -13,7 +13,6 @@ A browser-based streaming platform that enables users to record content and stre
 
 ## Technologies Used
 
-- **Frontend**: React.js
 - **Backend**: Node.js, Express.js
 - **Streaming**: WebRTC, Nginx RTMP Server, MediaRecorder API, FFmpeg (in Docker)
 - **Real-Time Communication**: Socket.IO
@@ -53,17 +52,12 @@ To get a local copy up and running, follow these steps.
 3. Configure streaming destinations such as Facebook or YouTube.
 4. For point-to-point streaming, connect with another user using WebRTC.
 
-## Deployment
 
-For deployment, consider using cloud services like AWS, Google Cloud, or DigitalOcean to host the backend. For the frontend, Vercel or Netlify can be used for easy deployment.
 
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request for any feature requests or bug fixes.
 
-## License
-
-This project is licensed under the MIT License.
 
 ## Acknowledgements
 
