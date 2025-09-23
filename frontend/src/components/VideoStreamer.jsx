@@ -16,18 +16,24 @@ const VideoStreamer = () => {
     // connect to backend
     socketRef.current = io('http://localhost:3000', { transports: ['websocket'] });
 
-    socketRef.current.on('connect', () => console.log('Socket connected', socketRef.current.id));
+    socketRef.current.on('connect', () =>
+      console.log('Socket connected', socketRef.current.id)
+    );
     socketRef.current.on('disconnect', () => console.log('Socket disconnected'));
 
     // get camera + mic
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+    navigator.mediaDevices
+      .getUserMedia({ video: true, audio: true })
       .then((stream) => {
         if (userVideoRef.current) userVideoRef.current.srcObject = stream;
       })
       .catch((err) => console.error('Error getting media:', err));
 
     return () => {
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state !== 'inactive'
+      ) {
         mediaRecorderRef.current.stop();
       }
       if (socketRef.current) socketRef.current.disconnect();
@@ -39,6 +45,9 @@ const VideoStreamer = () => {
       alert('Please enter RTMP URL first!');
       return;
     }
+
+    // optionally send rtmpUrl to backend
+    socketRef.current.emit('send_link', rtmpUrl);
 
     const stream = userVideoRef.current.srcObject;
 
@@ -53,7 +62,7 @@ const VideoStreamer = () => {
         e.data.arrayBuffer().then((buffer) => {
           socketRef.current.emit('binarystream', buffer);
         });
-        if (isRecording) setRecordedChunks(prev => [...prev, e.data]);
+        if (isRecording) setRecordedChunks((prev) => [...prev, e.data]);
       }
     };
 
@@ -62,7 +71,10 @@ const VideoStreamer = () => {
   };
 
   const stopLive = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== 'inactive'
+    ) {
       mediaRecorderRef.current.stop();
     }
     socketRef.current.emit('stop-stream');
@@ -77,7 +89,10 @@ const VideoStreamer = () => {
 
   const stopRecording = () => {
     setIsRecording(false);
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== 'inactive'
+    ) {
       mediaRecorderRef.current.stop();
     }
     // save locally
@@ -94,6 +109,7 @@ const VideoStreamer = () => {
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6">
       <h1 className="text-4xl font-bold mb-6 text-gray-800">StreamYard Clone</h1>
 
+      {/* RTMP URL input */}
       <input
         type="text"
         placeholder="Enter RTMP URL"
@@ -102,6 +118,7 @@ const VideoStreamer = () => {
         className="w-full max-w-3xl mb-4 px-4 py-2 border border-gray-300 rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
+      {/* Local video preview */}
       <video
         ref={userVideoRef}
         autoPlay
@@ -110,6 +127,7 @@ const VideoStreamer = () => {
         className="w-full max-w-3xl h-auto rounded-lg border-2 border-gray-300 shadow-md mb-6"
       />
 
+      {/* Controls */}
       <div className="flex flex-wrap gap-4 mb-6">
         <button
           onClick={startLive}
@@ -144,8 +162,9 @@ const VideoStreamer = () => {
         </button>
       </div>
 
-      <p className="text-gray-600 text-sm max-w-3xl text-center">
-        Enter your YouTube RTMP URL above to start live streaming. Recording will save locally as WebM.
+      <p className="text-gray-600 text-sm max-w-3xl text-center mb-6">
+        Enter your  RTMP URL above to start live streaming. Recording will
+        save locally as WebM.
       </p>
     </div>
   );

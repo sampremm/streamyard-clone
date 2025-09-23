@@ -1,33 +1,35 @@
-// index.js
 import http from 'http';
 import express from 'express';
 import { Server as SocketIO } from 'socket.io';
 import { spawn } from 'child_process';
-import path from 'path';
 
 const app = express();
 const server = http.createServer(app);
 const io = new SocketIO(server, {
-  maxHttpBufferSize: 1e8 // allow big chunks
+  maxHttpBufferSize: 1e8,
+  cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
-// Serve frontend (build folder)
-app.use(express.static(path.join(process.cwd(), 'public')));
-
-// YouTube RTMP URL (replace with yours)
-const YT_RTMP = 'rtmp://a.rtmp.youtube.com/';
-
+let YT_RTMP = null;
 let ffmpegProcess = null;
 
 io.on('connection', (socket) => {
   console.log('Socket connected:', socket.id);
 
-  socket.on('start-stream', () => {
-    console.log('Starting FFmpeg process…');
+  socket.on('send_link', (link) => {
+    YT_RTMP = link;
+    console.log('Link received:', link);
+    io.emit('new_link', link); // broadcast to all clients
+  });
 
-    // spawn ffmpeg when stream starts
+  socket.on('start-stream', () => {
+    if (!YT_RTMP) {
+      console.error('No RTMP link provided yet.');
+      return;
+    }
+    console.log('Starting FFmpeg process…');
     ffmpegProcess = spawn('ffmpeg', [
-      '-f', 'webm',            // tell FFmpeg input is WebM
+      '-f', 'webm',
       '-i', 'pipe:0',
       '-c:v', 'libx264',
       '-preset', 'ultrafast',
