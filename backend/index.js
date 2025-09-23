@@ -15,7 +15,7 @@ const io = new SocketIO(server, {
 app.use(express.static(path.join(process.cwd(), 'public')));
 
 // YouTube RTMP URL (replace with yours)
-const YT_RTMP = 'rtmp://a.rtmp.youtube.com/live2/hugy-hcz8-afq0-c1zx-8tv2';
+const YT_RTMP = 'rtmp://a.rtmp.youtube.com/';
 
 let ffmpegProcess = null;
 
